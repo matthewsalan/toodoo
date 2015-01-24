@@ -5,6 +5,16 @@ require 'pry'
 
 module Toodoo
   class User < ActiveRecord::Base
+    has_many :todo_lists  
+  end
+
+  class TodoList < ActiveRecord::Base
+    belongs_to :user
+    has_many :todo_items
+  end
+
+  class TodoItem < ActiveRecord::Base
+    belongs_to :todo_list
   end
 end
 
@@ -51,18 +61,22 @@ class TooDooApp
   end
 
   def new_todo_list
-    # TODO: This should create a new todo list by getting input from the user.
-    # The user should not have to tell you their id.
-    # Create the todo list in the database and update the @todos variable.
+    say("Creating a new todo list:")
+    title = ask("List name?") { |q| q.validate = /\A\w+\Z/ }
+    @todos = Toodoo::TodoList.create(:title => title, :user_id => @user.id)
+    say("Thanks #{@user.name}, your new list is ready!")
   end
 
   def pick_todo_list
     choose do |menu|
+      menu.prompt = "Choose a list: "
+        TooDoo::TodoList.where(:user_id => @user.id).find_each do |l|
+          menu.choice(l.title, "Choose the #{l.title}. todo list") {@todos = l}
+      end
       # TODO: This should get get the todo lists for the logged in user (@user).
       # Iterate over them and add a menu.choice line as seen under the login method's
       # find_each call. The menu choice block should set @todos to the todo list.
-
-      menu.choice(:back, "Just kidding, back to the main menu!") do
+      menu.choice(:back, "Back to the main menu!") do
         say "You got it!"
         @todos = nil
       end
@@ -70,11 +84,25 @@ class TooDooApp
   end
 
   def delete_todo_list
+    choices = 'yn'
+    delete = ask("Are you sure you want to delete the todo list?") do |q|
+      q.validate=/\A[#{choices}]\Z/
+      q.character = true
+      q.confirm = true
+    end
+    if delete == 'y'
+      @todos.destroy
+      @todos = nil
+    end
     # TODO: This should confirm that the user wants to delete the todo list.
     # If they do, it should destroy the current todo list and set @todos to nil.
   end
 
   def new_task
+    say("Creating a new task: ")
+    task = ask("What task do you want to add?") { |q| q.validate = /\A\w+\Z/ }
+    due_date = ask("What date does the task need to be finished?") { |q| q.validate = /\A\w+\Z/ }
+    @todos = Toodoo::TodoItem.create(:task => task, :due_date => due_date)
     # TODO: This should create a new task on the current user's todo list.
     # It must take any necessary input from the user. A due date is optional.
   end
@@ -147,7 +175,8 @@ class TooDooApp
   end
 end
 
-binding.pry
+#binding.pry
+
 
 todos = TooDooApp.new
 todos.run
