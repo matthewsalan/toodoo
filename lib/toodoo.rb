@@ -70,12 +70,9 @@ class TooDooApp
   def pick_todo_list
     choose do |menu|
       menu.prompt = "Choose a list: "
-        TooDoo::TodoList.where(:user_id => @user.id).find_each do |l|
+        Toodoo::TodoList.where(:user_id => @user.id).find_each do |l|
           menu.choice(l.title, "Choose the #{l.title}. todo list") {@todos = l}
       end
-      # TODO: This should get get the todo lists for the logged in user (@user).
-      # Iterate over them and add a menu.choice line as seen under the login method's
-      # find_each call. The menu choice block should set @todos to the todo list.
       menu.choice(:back, "Back to the main menu!") do
         say "You got it!"
         @todos = nil
@@ -84,6 +81,12 @@ class TooDooApp
   end
 
   def delete_todo_list
+    choose do |menu|
+      menu.prompt = "Choose a list to delete: "
+        Toodoo::TodoList.where(:user_id => @user.id).find_each do |l|
+          menu.choice(l.title, "Choose the #{l.title}. todo list") {@todos = l}
+      end
+    end
     choices = 'yn'
     delete = ask("Are you sure you want to delete the todo list?") do |q|
       q.validate=/\A[#{choices}]\Z/
@@ -92,10 +95,8 @@ class TooDooApp
     end
     if delete == 'y'
       @todos.destroy
-      @todos = nil
     end
-    # TODO: This should confirm that the user wants to delete the todo list.
-    # If they do, it should destroy the current todo list and set @todos to nil.
+    @todos = nil
   end
 
   def new_task
@@ -103,6 +104,7 @@ class TooDooApp
     task = ask("What task do you want to add?") { |q| q.validate = /\A\w+\Z/ }
     due_date = ask("What date does the task need to be finished?") { |q| q.validate = /\A\w+\Z/ }
     @todos = Toodoo::TodoItem.create(:task => task, :due_date => due_date)
+    say("")
     # TODO: This should create a new task on the current user's todo list.
     # It must take any necessary input from the user. A due date is optional.
   end
@@ -138,7 +140,7 @@ class TooDooApp
     puts "Welcome to your personal TooDoo app."
     loop do
       choose do |menu|
-        menu.layout = :menu_only
+        #menu.layout = :menu_only
         menu.shell = true
 
         # Are we logged in yet?
@@ -175,7 +177,6 @@ class TooDooApp
   end
 end
 
-#binding.pry
 
 
 todos = TooDooApp.new
