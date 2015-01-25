@@ -125,9 +125,23 @@ class TooDooApp
   #end
 
   def edit_task
+    #puts "What task do you to edit?"
+    choose do |menu|
+      menu.prompt = "What task do you want to edit?"
+      Toodoo::TodoItem.where(:todo_list_id => @todos.id).each do |t|
+        menu.choice(t.name, "this does nothing") {t.update(:name => prompt_user_for_new_task)}
+        t.save
+      end
+    end
     # TODO: This should display the todos on the current list in a menu
     # similarly to pick_todo_list. Once they select a todo, the menu choice block
     # should change the name of the todo.
+  end
+
+  def prompt_user_for_new_task
+    print "What is the new tasks name:"
+    input = gets.chomp
+    return input
   end
 
   def show_overdue
