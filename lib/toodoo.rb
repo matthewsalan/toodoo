@@ -16,6 +16,10 @@ module Toodoo
   class TodoItem < ActiveRecord::Base
     belongs_to :todo_list
   end
+
+  class AddTimestampsToTodoList < ActiveRecord::Base
+    belongs_to :todo_list
+  end
 end
 
 class TooDooApp
@@ -103,7 +107,7 @@ class TooDooApp
     say("Creating a new task: ")
     task = ask("Task name?") { |q| q.validate = /\A\w+\Z/ }
     due_date = ask("What date does the task need to be finished?") { |q| q.validate = /\A\w+\Z/ }
-    @todos = Toodoo::TodoItem.create(:task => task, :due_date => due_date, :user_id => @user_id)
+    @todos = Toodoo::TodoItem.create(:task => task, :due_date => due_date, :user_id => @user.id)
     # TODO: This should create a new task on the current user's todo list.
     # It must take any necessary input from the user. A due date is optional.
   end
@@ -144,8 +148,8 @@ class TooDooApp
 
         # Are we logged in yet?
         unless @user
-          menu.choice(:new_user, "Create a new user.") { new_user }
-          menu.choice(:login, "Login with an existing account.") { login }
+          menu.choice("Create a new user.", :new_user) { new_user }
+          menu.choice("Login with an existing account.", :login) { login }
         end
 
         # We're logged in. Do we have a todo list to work on?
