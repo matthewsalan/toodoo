@@ -4,7 +4,8 @@ class CreateTodoItems < ActiveRecord::Migration
 			t.integer :todo_list_id
 			t.string :task
 			t.datetime :due_date
-			t.string :completed
+			t.boolean :completed, default: false
+			t.timestamps
 		end
 	end
 

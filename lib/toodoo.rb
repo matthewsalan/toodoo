@@ -101,10 +101,9 @@ class TooDooApp
 
   def new_task
     say("Creating a new task: ")
-    task = ask("What task do you want to add?") { |q| q.validate = /\A\w+\Z/ }
+    task = ask("Task name?") { |q| q.validate = /\A\w+\Z/ }
     due_date = ask("What date does the task need to be finished?") { |q| q.validate = /\A\w+\Z/ }
-    @todos = Toodoo::TodoItem.create(:task => task, :due_date => due_date)
-    say("")
+    @todos = Toodoo::TodoItem.create(:task => task, :due_date => due_date, :user_id => @user_id)
     # TODO: This should create a new task on the current user's todo list.
     # It must take any necessary input from the user. A due date is optional.
   end
