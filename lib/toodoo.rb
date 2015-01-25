@@ -133,9 +133,6 @@ class TooDooApp
         t.save
       end
     end
-    # TODO: This should display the todos on the current list in a menu
-    # similarly to pick_todo_list. Once they select a todo, the menu choice block
-    # should change the name of the todo.
   end
 
   def prompt_user_for_new_task
